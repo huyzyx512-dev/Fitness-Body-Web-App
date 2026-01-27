@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 import dotenv from "dotenv"
+import UserService from "../services/userService.js"
 
 dotenv.config();
 
@@ -60,13 +61,13 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: "Email hoặc mật khẩu không đúng" })
         }
 
-        const accessToken = jwt.sign({ id: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_TTL })
+        const accessToken = jwt.sign({ id: user.id, tokenVersion: user.tokenVersion }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_TTL })
 
         const refreshToken = crypto.randomBytes(64).toString('hex')
 
         await db.RefreshToken.create({
             token: refreshToken,
-            expiryAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
+            expiryDate: new Date(Date.now() + REFRESH_TOKEN_TTL),
             userId: user.id
         })
 
@@ -90,6 +91,9 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
     try {
         const token = req.cookies?.refreshToken;
+        const userId = req.user.id;
+
+        await UserService.patchUser(userId);
 
         if (token) {
             await db.RefreshToken.destroy({
@@ -110,7 +114,7 @@ export const logout = async (req, res) => {
 
 export const refreshToken = async (req, res) => {
     try {
-        const token = req.cookies?.refreshToken
+        const token = req.cookies?.refreshToken;
 
         if (!token) {
             return res.status(401).json({ message: "Token don't exist" })
@@ -131,7 +135,7 @@ export const refreshToken = async (req, res) => {
         const newAccessToken = jwt.sign(
             { id: session.userId },
             process.env.ACCESS_TOKEN_SECRET,
-            ACCESS_TOKEN_TTL
+            { expiresIn: ACCESS_TOKEN_TTL }
         )
 
         return res.status(200).json({ newAccessToken })

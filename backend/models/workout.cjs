@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     notes: DataTypes.TEXT,
     scheduled_at: DataTypes.DATE,
     status: DataTypes.STRING,
-    user_id: DataTypes.UUID
+    user_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Workout',

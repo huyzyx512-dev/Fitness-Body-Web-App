@@ -18,7 +18,7 @@ export const authenticationToken = async (req, res, next) => {
             }
 
             let user = await db.User.findOne({
-                where: { id: decodeUser.id }, 
+                where: { id: decodeUser.id },
                 attributes: {
                     exclude: ["password_hash"]
                 }
@@ -26,6 +26,10 @@ export const authenticationToken = async (req, res, next) => {
 
             if (!user) {
                 return res.status(404).json({ message: "Người dùng không tồn tại." })
+            }
+
+            if (decodeUser.tokenVersion !== user.tokenVersion) {
+                return res.status(401).json({ message: "Token has been revoked" })
             }
 
             req.user = user

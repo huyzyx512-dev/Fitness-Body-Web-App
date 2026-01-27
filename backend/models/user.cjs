@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     password_hash: DataTypes.STRING,
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    tokenVersion: DataTypes.INTEGER 
   }, {
     sequelize,
     modelName: 'User',
