@@ -2,8 +2,8 @@ import db from "../../models/index.js";
 
 class UserService {
     static async patchUser(userId) {
-        const affectedRows = await db.User.update(
-            { tokenVersion: 1 },
+        const affectedRows = await db.User.increment(
+            { tokenVersion: 1},
             { where: { id: userId } }
         );
         return affectedRows;

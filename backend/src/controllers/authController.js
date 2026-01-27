@@ -68,7 +68,8 @@ export const login = async (req, res) => {
         await db.RefreshToken.create({
             token: refreshToken,
             expiryDate: new Date(Date.now() + REFRESH_TOKEN_TTL),
-            userId: user.id
+            userId: user.id,
+            tokenVersion: user.tokenVersion,
         })
 
         res.cookie("refreshToken", refreshToken, {
@@ -132,8 +133,19 @@ export const refreshToken = async (req, res) => {
 
         if (isExpired) return res.status(403).json({ message: "Token đã hết hạn" })
 
+        // Lấy user từ DB
+        const user = await db.User.findByPk(session.userId)
+        if (!user) {
+            return res.status(401).json({ message: "User not found" })
+        }
+
+        // CHECK tokenVersion
+        if (decoded.tokenVersion !== user.tokenVersion) {
+            return res.status(401).json({ message: "Refresh token revoked" })
+        }
+
         const newAccessToken = jwt.sign(
-            { id: session.userId },
+            { id: session.userId, tokenVersion: user.tokenVersion },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: ACCESS_TOKEN_TTL }
         )
