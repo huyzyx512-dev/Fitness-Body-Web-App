@@ -18,8 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     reps: DataTypes.INTEGER,
     weight: DataTypes.DECIMAL,
     comment: DataTypes.TEXT,
-    workout_id: DataTypes.UUID,
-    exercise_id: DataTypes.UUID
+    workout_id: DataTypes.INTEGER,
+    exercise_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'WorkoutExercise',

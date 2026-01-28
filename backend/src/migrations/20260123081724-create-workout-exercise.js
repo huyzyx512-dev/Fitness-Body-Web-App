@@ -22,10 +22,10 @@ module.exports = {
         type: Sequelize.TEXT
       },
       workout_id: {
-        type: Sequelize.UUID
+        type: Sequelize.INTEGER
       },
       exercise_id: {
-        type: Sequelize.UUID
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

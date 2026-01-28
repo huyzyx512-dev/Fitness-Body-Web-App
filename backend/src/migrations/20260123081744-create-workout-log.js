@@ -19,7 +19,10 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       workout_id: {
-        type: Sequelize.UUID
+        type: Sequelize.INTEGER
+      },
+      comment: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
