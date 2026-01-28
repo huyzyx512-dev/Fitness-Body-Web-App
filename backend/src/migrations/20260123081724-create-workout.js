@@ -2,25 +2,34 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('RefreshTokens', {
+    await queryInterface.createTable('Workout', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      token: {
+      title: {
         type: Sequelize.STRING
       },
-      expiryDate: {
+      notes: {
+        type: Sequelize.TEXT
+      },
+      scheduled_at: {
         type: Sequelize.DATE
       },
-      userId: {
-        type: Sequelize.INTEGER
+      status: {
+        type: Sequelize.STRING,
+        defaultValue: 'pending'
       },
-      tokenVersion: {
+      user_id: {
         type: Sequelize.INTEGER,
-        defaultValue: 0
+        references: {
+          model: 'User',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
@@ -33,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('RefreshTokens');
+    await queryInterface.dropTable('Workout');
   }
 };

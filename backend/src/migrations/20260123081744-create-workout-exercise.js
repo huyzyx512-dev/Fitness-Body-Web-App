@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('WorkoutExercises', {
+    await queryInterface.createTable('WorkoutExercise', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -22,10 +22,23 @@ module.exports = {
         type: Sequelize.TEXT
       },
       workout_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Workout',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+
       },
       exercise_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        onUpdate: 'CASCADE',
+        references: {
+          model: 'Exercise',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
@@ -38,6 +51,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('WorkoutExercises');
+    await queryInterface.dropTable('WorkoutExercise');
   }
 };

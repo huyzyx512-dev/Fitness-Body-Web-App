@@ -4,20 +4,24 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Exercise extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      Exercise.hasMany(models.WorkoutExercise, {
+        foreignKey: 'exercise_id',
+        as: 'workoutExercises'
+      });
+
+      Exercise.belongsTo(models.User, {
+        foreignKey: 'created_by',
+        as: 'creator'
+      });
     }
   }
   Exercise.init({
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
     category: DataTypes.STRING,
-    muscle_group: DataTypes.STRING
+    muscle_group: DataTypes.STRING,
+    created_by: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Exercise',

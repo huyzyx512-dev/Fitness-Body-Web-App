@@ -42,30 +42,6 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
-const {
-  User,
-  Workout,
-  WorkoutExercise,
-  Exercise,
-  WorkoutLog,
-  RefreshToken
-} = db;
-
-User.hasMany(Workout, { foreignKey: "user_id" });
-Workout.belongsTo(User, { foreignKey: "user_id" });
-
-Workout.hasMany(WorkoutExercise, { foreignKey: "workout_id" });
-WorkoutExercise.belongsTo(Workout, { foreignKey: "workout_id" });
-
-Exercise.hasMany(WorkoutExercise, { foreignKey: "exercise_id" });
-WorkoutExercise.belongsTo(Exercise, { foreignKey: "exercise_id" });
-
-Workout.hasOne(WorkoutLog, { foreignKey: "workout_id" });
-WorkoutLog.belongsTo(Workout, { foreignKey: "workout_id" });
-
-User.hasMany(RefreshToken, { foreignKey: 'userId' });
-RefreshToken.belongsTo(User, { foreignKey: 'userId' });
-
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

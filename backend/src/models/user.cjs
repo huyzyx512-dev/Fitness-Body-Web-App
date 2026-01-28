@@ -6,7 +6,29 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // define association here
+      // Role
+      User.belongsTo(models.Role, {
+        foreignKey: 'role_id',
+        as: 'role'
+      });
+
+      // Workouts
+      User.hasMany(models.Workout, {
+        foreignKey: 'user_id',
+        as: 'workouts'
+      });
+
+      // Custom exercises (Hybrid)
+      User.hasMany(models.Exercise, {
+        foreignKey: 'created_by',
+        as: 'createdExercises'
+      });
+
+      // Refresh tokens
+      User.hasMany(models.RefreshToken, {
+        foreignKey: 'userId',
+        as: 'refreshTokens'
+      });
     }
   }
   User.init({
@@ -17,7 +39,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     password_hash: DataTypes.STRING,
     name: DataTypes.STRING,
-    tokenVersion: DataTypes.INTEGER 
+    tokenVersion: DataTypes.INTEGER,
+    role_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'User',
