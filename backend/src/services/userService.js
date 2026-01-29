@@ -1,4 +1,4 @@
-import db from "../../models/index.js";
+import db from "../models/index.js";
 
 class UserService {
     static async patchUser(userId) {

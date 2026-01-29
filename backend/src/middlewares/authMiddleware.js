@@ -1,4 +1,4 @@
-import db from "../../models/index.js"
+import db from "../models/index.js"
 import jwt from "jsonwebtoken"
 
 export const authenticationToken = async (req, res, next) => {
@@ -21,7 +21,8 @@ export const authenticationToken = async (req, res, next) => {
                 where: { id: decodeUser.id },
                 attributes: {
                     exclude: ["password_hash"]
-                }
+                },
+                include: [{ model: db.Role, as: 'role' }]
             })
 
             if (!user) {

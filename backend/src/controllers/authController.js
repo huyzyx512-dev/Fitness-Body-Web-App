@@ -1,4 +1,4 @@
-import db from "../../models/index.js"
+import db from "../models/index.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
@@ -36,7 +36,8 @@ export const register = async (req, res) => {
         await db.User.create({
             email,
             password_hash,
-            name
+            name,
+            role_id: 2
         })
 
         return res.sendStatus(204);
@@ -140,7 +141,7 @@ export const refreshToken = async (req, res) => {
         }
 
         // CHECK tokenVersion
-        if (decoded.tokenVersion !== user.tokenVersion) {
+        if (session.tokenVersion !== user.tokenVersion) {
             return res.status(401).json({ message: "Refresh token revoked" })
         }
 
