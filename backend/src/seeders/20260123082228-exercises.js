@@ -7,7 +7,7 @@ module.exports = {
     // `createdAt/updatedAt` are NOT NULL in the migration, so we set them explicitly for bulkInsert.
     const now = new Date();
 
-    await queryInterface.bulkInsert('Exercises', [
+    await queryInterface.bulkInsert('Exercise', [
       {
         name: 'Bench Press',
         description: 'Chest exercise',
@@ -28,7 +28,7 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('Exercises', null, {});
+    await queryInterface.bulkDelete('Exercise', null, {});
   },
 };
 
