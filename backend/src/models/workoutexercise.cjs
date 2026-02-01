@@ -22,7 +22,15 @@ module.exports = (sequelize, DataTypes) => {
     weight: DataTypes.DECIMAL,
     comment: DataTypes.TEXT,
     workout_id: DataTypes.INTEGER,
-    exercise_id: DataTypes.INTEGER
+    exercise_id: DataTypes.INTEGER,
+    order_index: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+    rest_time_seconds: {
+      type: DataTypes.INTEGER,
+      defaultValue: 60
+    }
   }, {
     sequelize,
     modelName: 'WorkoutExercise',

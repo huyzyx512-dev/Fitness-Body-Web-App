@@ -21,7 +21,27 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT,
     category: DataTypes.STRING,
     muscle_group: DataTypes.STRING,
-    created_by: DataTypes.INTEGER
+    created_by: DataTypes.INTEGER,
+    met_value: {
+      type: DataTypes.DECIMAL(4, 1),
+      defaultValue: 3.0
+    },
+    difficulty_level: {
+      type: DataTypes.ENUM('beginner', 'intermediate', 'advanced'),
+      defaultValue: 'beginner'
+    },
+    equipment: {
+      type: DataTypes.STRING,
+      defaultValue: 'none'
+    },
+    video_url: {
+      type: DataTypes.STRING(500),
+      allowNull: true
+    },
+    thumbnail_url: {
+      type: DataTypes.STRING(500),
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'Exercise',

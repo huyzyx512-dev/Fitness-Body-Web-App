@@ -15,7 +15,10 @@ module.exports = (sequelize, DataTypes) => {
     token: DataTypes.STRING,
     expiryDate: DataTypes.DATE,
     userId: DataTypes.INTEGER,
-    tokenVersion: DataTypes.INTEGER 
+    tokenVersion: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    }
   }, {
     sequelize,
     modelName: 'RefreshToken',

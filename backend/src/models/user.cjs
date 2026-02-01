@@ -29,6 +29,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         as: 'refreshTokens'
       });
+
+      // Body logs
+      User.hasMany(models.UserBodyLog, {
+        foreignKey: 'user_id',
+        as: 'bodyLogs'
+      });
     }
   }
   User.init({
@@ -39,8 +45,30 @@ module.exports = (sequelize, DataTypes) => {
     },
     password_hash: DataTypes.STRING,
     name: DataTypes.STRING,
-    tokenVersion: DataTypes.INTEGER,
-    role_id: DataTypes.INTEGER
+    tokenVersion: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+    role_id: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+    weight: {
+      type: DataTypes.DECIMAL(5, 2),
+      defaultValue: 70.00
+    },
+    height: {
+      type: DataTypes.DECIMAL(5, 2),
+      defaultValue: 170.00
+    },
+    gender: {
+      type: DataTypes.ENUM('male', 'female', 'other'),
+      defaultValue: 'male'
+    },
+    date_of_birth: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'User',
