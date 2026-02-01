@@ -4,13 +4,11 @@ class WorkoutService {
     static async createWorkout(
         user_id,
         title,
-        status,
         notes,
         scheduled_at) {
         const data = await db.Workout.create({
             user_id,
             title,
-            status,
             notes,
             scheduled_at
         })
@@ -34,11 +32,19 @@ class WorkoutService {
     }
 
     static async getWorkout(user_id, id) {
-
         const workout = await db.Workout.findOne({
             where: { id: id, user_id: user_id },
-            raw: true,
-            nest: true
+            include: [{
+                model: db.WorkoutExercise,
+                as: 'exercises',
+                attributes: ['id', 'sets', 'reps', 'weight', 'comment', 'order_index', 'rest_time_seconds'],
+                include: [{
+                    model: db.Exercise,
+                    as: 'exercise',
+                    attributes: ['id', 'name', 'description', 'category', 'muscle_group', 'met_value', 'difficulty_level', 'equipment', 'video_url', 'thumbnail_url']
+                }],
+                order: [['order_index', 'ASC']] // Sắp xếp bài tập theo thứ tự
+            }]
         })
 
         return workout;
@@ -47,7 +53,18 @@ class WorkoutService {
     static async getAll(userId) {
         const workouts = await db.Workout.findAll({
             where: { user_id: userId },
-            order: [['createdAt', 'ASC']]
+            order: [['createdAt', 'ASC']],
+            include: [{
+                model: db.WorkoutExercise,
+                as: 'exercises',
+                attributes: ['id', 'sets', 'reps', 'weight', 'comment', 'order_index', 'rest_time_seconds'],
+                include: [{
+                    model: db.Exercise,
+                    as: 'exercise',
+                    attributes: ['id', 'name', 'description', 'category', 'muscle_group', 'met_value', 'difficulty_level', 'equipment', 'video_url', 'thumbnail_url']
+                }],
+                order: [['order_index', 'ASC']] // Sắp xếp bài tập theo thứ tự
+            }]
         });
 
         return workouts;
