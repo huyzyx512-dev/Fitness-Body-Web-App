@@ -1,31 +1,44 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Exercise extends Model {
     static associate(models) {
-      Exercise.hasMany(models.WorkoutExercise, {
-        foreignKey: 'exercise_id',
-        as: 'workoutExercises'
-      });
-
       Exercise.belongsTo(models.User, {
         foreignKey: 'created_by',
         as: 'creator'
+      });
+
+      Exercise.belongsTo(models.Category, {
+        foreignKey: 'category_id',
+        as: 'category'
+      });
+
+      Exercise.belongsToMany(models.MuscleGroup, {
+        through: models.ExerciseMuscle,
+        foreignKey: 'exercise_id',
+        otherKey: 'muscle_group_id',
+        as: 'muscleGroups'
+      });
+
+      Exercise.hasMany(models.ExerciseMuscle, {
+        foreignKey: 'exercise_id',
+        as: 'exerciseMuscles'
+      });
+
+      Exercise.hasMany(models.WorkoutExercise, {
+        foreignKey: 'exercise_id',
+        as: 'workoutExercises'
       });
     }
   }
   Exercise.init({
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
-    category: DataTypes.STRING,
-    muscle_group: DataTypes.STRING,
-    created_by: DataTypes.INTEGER,
-    met_value: {
-      type: DataTypes.DECIMAL(4, 1),
-      defaultValue: 3.0
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
+    created_by: DataTypes.INTEGER,
     difficulty_level: {
       type: DataTypes.ENUM('beginner', 'intermediate', 'advanced'),
       defaultValue: 'beginner'

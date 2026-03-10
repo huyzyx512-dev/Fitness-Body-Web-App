@@ -30,6 +30,22 @@ module.exports = {
           key: 'id'
         },
       },
+      weight: {
+        type: Sequelize.DECIMAL(5, 2),
+        defaultValue: 70.00
+      },
+      height: {
+        type: Sequelize.DECIMAL(5, 2),
+        defaultValue: 170.00
+      },
+      gender: {
+        type: Sequelize.ENUM('male', 'female', 'other'),
+        defaultValue: 'male'
+      },
+      date_of_birth: {
+        type: Sequelize.DATEONLY,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

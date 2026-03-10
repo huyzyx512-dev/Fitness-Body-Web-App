@@ -1,45 +1,32 @@
 'use strict';
-const {
-  Model,
-  Sequelize
-} = require('sequelize');
+const { Model, DataTypes: SequelizeDataTypes } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // Role
       User.belongsTo(models.Role, {
         foreignKey: 'role_id',
         as: 'role'
       });
 
-      // Workouts
       User.hasMany(models.Workout, {
         foreignKey: 'user_id',
         as: 'workouts'
       });
 
-      // Custom exercises (Hybrid)
       User.hasMany(models.Exercise, {
         foreignKey: 'created_by',
         as: 'createdExercises'
       });
 
-      // Refresh tokens
       User.hasMany(models.RefreshToken, {
         foreignKey: 'userId',
         as: 'refreshTokens'
-      });
-
-      // Body logs
-      User.hasMany(models.UserBodyLog, {
-        foreignKey: 'user_id',
-        as: 'bodyLogs'
       });
     }
   }
   User.init({
     email: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       unique: true,
       allowNull: false
     },
@@ -72,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'User',
+    tableName: 'User'
   });
   return User;
 };
