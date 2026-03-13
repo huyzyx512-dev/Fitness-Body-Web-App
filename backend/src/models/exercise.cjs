@@ -47,6 +47,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: 'none'
     },
+    met_value: {
+      type: DataTypes.DECIMAL(4, 1),
+      defaultValue: 3.0,
+      allowNull: false,
+      comment: 'Chỉ số MET để tính calories'
+    },
     video_url: {
       type: DataTypes.STRING(500),
       allowNull: true
