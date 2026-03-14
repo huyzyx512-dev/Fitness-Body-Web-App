@@ -152,7 +152,7 @@ export const removeExerciseToWorkoutById = async (user, params) => {
 
 export const completeWorkoutByUser = async (user, workoutId, data) => {
   const transaction = await db.sequelize.transaction();
-
+  //TODO: Sửa lại phần đánh dấu hoàn thành buổi tập, nếu bấm đánh dấu hoàn thành thì tạo record trong bảng WorkoutLog
   try {
     // 1. Lấy thông tin User chi tiết (để lấy weight, height mới nhất)
     // req.user thường chỉ chứa id từ token, nên query lại cho chắc chắn
@@ -196,29 +196,30 @@ export const completeWorkoutByUser = async (user, workoutId, data) => {
       throw error;
     }
 
-    // 3. Tính toán Duration (Phút)
+    if (workout.status === 'pending') {
+      const error = new Error("Workout này chưa được bắt đầu");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // // 3. Tính toán Duration (Phút)
     const endTime = new Date();
     let durationMinutes = 0;
 
-    // if (data.duration && !isNaN(data.duration)) {
-    //   // Case 1: Frontend gửi lên (chính xác nhất)
-    //   durationMinutes = parseFloat(data.duration);
-    // } else 
+    // // if (data.duration && !isNaN(data.duration)) {
+    // //   // Case 1: Frontend gửi lên (chính xác nhất)
+    // //   durationMinutes = parseFloat(data.duration);
+    // // } else 
     if (workout.started_at) {
       // Case 2: Tính từ lúc bắt đầu (nếu DB có lưu started_at)
       const diffMs = endTime - new Date(workout.started_at);
       durationMinutes = Math.floor(diffMs / 60000);
-    } else {
-      // Case 3: Fallback nếu không có cả hai (ví dụ user quên bấm start)
-      // Lấy duration mặc định dựa trên số lượng bài tập (ví dụ mỗi bài 10p)
-      // Hoặc mặc định 45 phút
-      durationMinutes = workout.exercises.length * 10 || 45;
     }
 
-    // 4. Tính toán Calories dựa trên Dữ liệu thật
+    // // 4. Tính toán Calories dựa trên Dữ liệu thật
     let caloriesBurned = 0;
 
-    // Bước 4a: Tính MET trung bình của cả buổi tập
+    // // Bước 4a: Tính MET trung bình của cả buổi tập
     let totalMet = 0;
     let exerciseCount = 0;
 
@@ -231,13 +232,13 @@ export const completeWorkoutByUser = async (user, workoutId, data) => {
       });
 
 
-      // Nếu không có bài tập hoặc bài tập chưa có MET, dùng giá trị mặc định (VD: 5.0 cho Moderate intensity)
+      //   // Nếu không có bài tập hoặc bài tập chưa có MET, dùng giá trị mặc định (VD: 5.0 cho Moderate intensity)
       const averageMet = exerciseCount > 0 ? (totalMet / exerciseCount) : 5.0;
 
-      // Bước 4b: Lấy cân nặng (mặc định 70kg nếu chưa cập nhật)
+      //   // Bước 4b: Lấy cân nặng (mặc định 70kg nếu chưa cập nhật)
       const userWeight = userDetails.weight ? parseFloat(userDetails.weight) : 70;
 
-      // Bước 4c: Áp dụng công thức
+      //   // Bước 4c: Áp dụng công thức
       if (durationMinutes > 0) {
         caloriesBurned = Math.round((durationMinutes * (averageMet * 3.5 * userWeight)) / 200);
       }
@@ -249,7 +250,6 @@ export const completeWorkoutByUser = async (user, workoutId, data) => {
     }, { transaction });
 
     // 2. Sau đó mới tạo Log
-    // (Nếu bước 1 lỗi, nó nhảy xuống catch ngay, không chạy bước 2 -> An toàn)
     const newLog = await db.WorkoutLog.create({
       workout_id: workout.id,
       completed_at: endTime,
