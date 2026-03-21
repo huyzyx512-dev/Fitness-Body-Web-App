@@ -1,16 +1,105 @@
-# React + Vite
+# Fitness App Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend application built with React + Vite + Tailwind CSS for the Fitness & Weight Management web app.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔐 Authentication (Login, Register, Logout)
+- 💪 Workout Management (Create, View, Start, Complete workouts)
+- 🏋️ Exercise Library (Browse, Create, Edit, Delete exercises)
+- 👤 User Profile
+- 📱 Responsive Design (Mobile-first)
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** - UI library
+- **Vite** - Build tool
+- **React Router DOM** - Routing
+- **Axios** - HTTP client
+- **Tailwind CSS** - Styling
+- **Context API** - State management
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+src/
+├── assets/            # Images, icons
+├── components/
+│   ├── common/        # Button, Input, Modal, Loader
+│   └── layout/        # Navbar, Footer
+├── pages/
+│   ├── auth/          # Login, Register
+│   ├── dashboard/     # Workouts, Exercises, Profile
+│   └── not-found/     # 404 page
+├── services/
+│   ├── api/           # Axios instance with interceptors
+│   └── modules/       # API service modules (auth, user, exercises, workouts)
+├── hooks/             # Custom React hooks
+├── utils/             # Helper functions, formatters
+├── routes/            # React Router configuration
+├── context/           # AuthContext for authentication state
+└── App.jsx            # Main app component
+```
+
+## Setup
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Create `.env` file (copy from `.env.example`):
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+3. Start development server:
+```bash
+npm run dev
+```
+
+4. Build for production:
+```bash
+npm run build
+```
+
+## API Integration
+
+The frontend connects to the backend API at `http://localhost:5000/api` by default.
+
+### Authentication Flow
+
+1. User logs in → receives `accessToken` → stored in localStorage
+2. Access token expires (15 minutes) → automatically refreshed using refresh token (cookie)
+3. Refresh token expires → user redirected to login
+
+### Protected Routes
+
+- `/workouts` - Requires authentication
+- `/profile` - Requires authentication
+- `/exercises` - Public (but create/edit/delete requires auth)
+
+## Key Components
+
+### Common Components
+- **Button** - Reusable button with variants (primary, secondary, danger, success, outline)
+- **Input** - Form input with label and error handling
+- **Modal** - Reusable modal dialog
+- **Loader** - Loading spinner
+
+### Pages
+- **Login/Register** - Authentication pages
+- **Workouts** - Manage workout sessions (create, start, complete)
+- **Exercises** - Browse and manage exercise library
+- **Profile** - View user profile information
+
+## Environment Variables
+
+- `VITE_API_BASE_URL` - Backend API base URL (default: http://localhost:5000/api)
+
+## Notes
+
+- All API calls use axios with automatic token refresh
+- Cookies are used for refresh tokens (httpOnly, secure)
+- Access tokens are stored in localStorage
+- Protected routes automatically redirect to login if not authenticated
