@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import PageLayout from '../../components/layout/PageLayout.jsx';
 import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
 
@@ -13,71 +12,214 @@ const getBMICategory = (bmi) => {
 const BMICalculator = () => {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
-  const [result, setResult] = useState(null);
+  const [bmi, setBmi] = useState(null)
+  const [category, setCategory] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveMessage, setSaveMessage] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const h = parseFloat(height) / 100;
-    const w = parseFloat(weight);
-    if (h > 0 && w > 0) {
-      const bmi = (w / (h * h)).toFixed(1);
-      setResult({ bmi: parseFloat(bmi), ...getBMICategory(parseFloat(bmi)) });
-    } else {
-      setResult(null);
+  // BMI Calculation: weight (kg) / [height (m)]²
+  const calculateBMI = () => {
+    const heightInMeters = parseFloat(height) / 100 // Convert cm to meters
+    const weightInKg = parseFloat(weight)
+
+    if (!heightInMeters || !weightInKg || heightInMeters <= 0 || weightInKg <= 0) {
+      return null
     }
-  };
+
+    return weightInKg / (heightInMeters * heightInMeters)
+  }
+
+  // Get BMI category based on standard ranges
+  const getBMICategory = (bmiValue) => {
+    if (bmiValue < 18.5) {
+      return {
+        label: 'Thiếu cân',
+        description: 'BMI less than 18.5',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200'
+      }
+    } else if (bmiValue >= 18.5 && bmiValue < 25) {
+      return {
+        label: 'Cân nặng bình thường',
+        description: 'BMI 18.5-24.9',
+        color: 'text-green-600',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200'
+      }
+    } else if (bmiValue >= 25 && bmiValue < 30) {
+      return {
+        label: 'Thừa cân',
+        description: 'BMI 25-29.9',
+        color: 'text-yellow-600',
+        bgColor: 'bg-yellow-50',
+        borderColor: 'border-yellow-200'
+      }
+    } else {
+      return {
+        label: 'Béo phì',
+        description: 'BMI 30 or greater',
+        color: 'text-red-600',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200'
+      }
+    }
+  }
+
+  // Handle calculation
+  const handleCalculate = () => {
+    const bmiValue = calculateBMI()
+    if (bmiValue) {
+      setBmi(bmiValue)
+      setCategory(getBMICategory(bmiValue))
+      setSaveMessage('')
+    }
+  }
+
+  // Reset form
+  const handleReset = () => {
+    setHeight('')
+    setWeight('')
+    setBmi(null)
+    setCategory('')
+    setSaveMessage('')
+  }
 
   return (
-    <PageLayout title="Tính chỉ số BMI">
-      <div className="max-w-xl">
-        <div className="card card-body">
-          <p className="text-slate-600 mb-6">
-            Chỉ số BMI (Body Mass Index) giúp đánh giá mức độ cân nặng so với chiều cao. Nhập chiều cao (cm) và cân nặng (kg).
-          </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
+    // <PageLayout title="Tính chỉ số BMI" className='max-w-2xl mx-auto'>
+    //   <div className="max-w-xl">
+    //     <div className="card card-body">
+    //       <p className="text-slate-600 mb-6">
+    //         Chỉ số BMI (Body Mass Index) giúp đánh giá mức độ cân nặng so với chiều cao. Nhập chiều cao (cm) và cân nặng (kg).
+    //       </p>
+    //       <form onSubmit={handleSubmit} className="space-y-4">
+    //         <Input
+    //           label="Chiều cao (cm)"
+    //           type="number"
+    //           min="100"
+    //           max="250"
+    //           step="0.1"
+    //           value={height}
+    //           onChange={(e) => setHeight(e.target.value)}
+    //           placeholder="170"
+    //           required
+    //         />
+    //         <Input
+    //           label="Cân nặng (kg)"
+    //           type="number"
+    //           min="30"
+    //           max="300"
+    //           step="0.1"
+    //           value={weight}
+    //           onChange={(e) => setWeight(e.target.value)}
+    //           placeholder="65"
+    //           required
+    //         />
+    //         <Button type="submit" size="lg" className="w-full sm:w-auto">
+    //           Tính BMI
+    //         </Button>
+    //       </form>
+
+    //       {result && (
+    //         <div className={`mt-8 p-6 rounded-xl ${result.bg}`}>
+    //           <p className="text-sm font-medium text-slate-600">Kết quả</p>
+    //           <p className={`text-4xl font-bold mt-1 ${result.color}`}>{result.bmi}</p>
+    //           <p className={`font-semibold mt-2 ${result.color}`}>{result.label}</p>
+    //           <p className="text-sm text-slate-600 mt-3">
+    //             {result.label === 'Thiếu cân' && 'Nên tăng cường dinh dưỡng và tập luyện tăng cơ.'}
+    //             {result.label === 'Bình thường' && 'Cân nặng của bạn đang ở mức tốt. Duy trì chế độ ăn và tập luyện hợp lý.'}
+    //             {result.label === 'Thừa cân' && 'Cân nhắc giảm calo và tăng vận động để về mức bình thường.'}
+    //             {result.label === 'Béo phì' && 'Nên gặp bác sĩ hoặc chuyên gia dinh dưỡng để có kế hoạch giảm cân an toàn.'}
+    //           </p>
+    //         </div>
+    //       )}
+    //     </div>
+    //   </div>
+    // </PageLayout>
+    <div className='max-w-2xl mx-auto'>
+      <div className='text-center mb-8'>
+        <h1 className='text-3xl font-bold text-gray-900 mb-2'>Tính chỉ số BMI</h1>
+        <p className='text-gray-600'>Tính chỉ số khối cơ thể của bạn và theo dõi tiến độ sức khỏe của bạn</p>
+      </div>
+
+      {/* Form calculator BMI */}
+      <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-6'>
+        <div className='grid md:grid-cols-2 gap-6 mb-6'>
+          <div>
+            <label htmlFor="height" className='block text-sm font-medium text-gray-700 mb-2'>Height (cm)</label>
             <Input
-              label="Chiều cao (cm)"
-              type="number"
-              min="100"
-              max="250"
-              step="0.1"
+              id="height"
+              type='number'
+              placeholder="Enter height in centimeters"
               value={height}
               onChange={(e) => setHeight(e.target.value)}
-              placeholder="170"
-              required
-            />
-            <Input
-              label="Cân nặng (kg)"
-              type="number"
-              min="30"
-              max="300"
+              min="50"
+              max="250"
               step="0.1"
+            />
+          </div>
+          <div>
+            <label htmlFor="weight" className='block text-sm font-medium text-gray-700 mb-2'>Weight (kg)</label>
+            <Input
+              id="weight"
+              type='number'
+              placeholder="Enter weight in kilograms"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              placeholder="65"
-              required
+              min="20"
+              max="300"
+              step="0.1"
             />
-            <Button type="submit" size="lg" className="w-full sm:w-auto">
-              Tính BMI
-            </Button>
-          </form>
+          </div>
+        </div>
 
-          {result && (
-            <div className={`mt-8 p-6 rounded-xl ${result.bg}`}>
-              <p className="text-sm font-medium text-slate-600">Kết quả</p>
-              <p className={`text-4xl font-bold mt-1 ${result.color}`}>{result.bmi}</p>
-              <p className={`font-semibold mt-2 ${result.color}`}>{result.label}</p>
-              <p className="text-sm text-slate-600 mt-3">
-                {result.label === 'Thiếu cân' && 'Nên tăng cường dinh dưỡng và tập luyện tăng cơ.'}
-                {result.label === 'Bình thường' && 'Cân nặng của bạn đang ở mức tốt. Duy trì chế độ ăn và tập luyện hợp lý.'}
-                {result.label === 'Thừa cân' && 'Cân nhắc giảm calo và tăng vận động để về mức bình thường.'}
-                {result.label === 'Béo phì' && 'Nên gặp bác sĩ hoặc chuyên gia dinh dưỡng để có kế hoạch giảm cân an toàn.'}
-              </p>
+        {/* Action Button */}
+        <div className='flex gap-4 mb-6'>
+          <Button onClick={handleCalculate} disabled={!height || !weight} className='flex-1'>Tính BMI</Button>
+          <Button variant='secondary' onClick={handleReset} className='flex-1'>Reset</Button>
+        </div>
+
+        {/* BMI Result */}
+        {bmi && category && (
+          <div className={`rounded-lg border p-6 mb-6 ${category.bgColor} ${category.borderColor}`}>
+            <div className='text-center'>
+              <div className={`text-4xl font-bold ${category.color} mb-2`}>
+                {bmi.toFixed(1)}
+              </div>
+              <div className={`text-xl font-semibold ${category.color} mb-2`}>
+                {category.label}
+              </div>
+              <div className="text-sm text-gray-600 mb-4">
+                {category.description}
+              </div>
+
+              {/* BMI Scale Visualization */}
+              <div className="mb-4">
+                <div className="text-sm text-gray-600 mb-2">Danh mục BMI:</div>
+                <div className="flex text-xs">
+                  <div className="flex-1 text-center p-2 bg-blue-50 text-blue-700 rounded-l">Thiếu cân &lt;18.5</div>
+                  <div className="flex-1 text-center p-2 bg-green-50 text-green-700">Bình thường 18.5-24.9</div>
+                  <div className="flex-1 text-center p-2 bg-yellow-50 text-yellow-700">Thừa cân 25-29.9</div>
+                  <div className="flex-1 text-center p-2 bg-red-50 text-red-700 rounded-r">Béo phì ≥30</div>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
+        )}
+
+
+        {/* BMI Information */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">BMI là gì?</h3>
+          <p className="text-sm text-gray-600 mb-3">
+            Chỉ số khối cơ thể (BMI) là thước đo lượng mỡ trong cơ thể dựa trên chiều cao và cân nặng áp dụng cho nam giới và phụ nữ trưởng thành.
+          </p>
+          <p className="text-sm text-gray-600">
+            <strong>Công thức:</strong> BMI = weight (kg) / [height (m)]²
+          </p>
         </div>
       </div>
-    </PageLayout>
+    </div>
   );
 };
 
