@@ -10,6 +10,9 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    birthday: '',
+    weight: '',
+    height: '',
     password: '',
     confirmPassword: '',
   });
@@ -85,6 +88,11 @@ const Register = () => {
             )}
             <Input label="Họ và tên" type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Nguyễn Văn A" required />
             <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" required />
+            <Input label="Birthday" type="date" name="birthday" value={formData.birthday} onChange={handleChange} required />
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <Input label="Weight (kg)" type="number" name="weight" value={formData.weight} onChange={handleChange} placeholder="60" required />
+              <Input label="Height (cm)" type="number" name="height" value={formData.height} onChange={handleChange} placeholder="170" required />
+            </div>
             <Input label="Mật khẩu" type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••" required />
             <Input label="Xác nhận mật khẩu" type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••" required />
             <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full">

@@ -38,7 +38,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white border-b border-slate-200 sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
           <Link to="/" className="flex items-center gap-2">
             <span className="text-xl font-bold text-emerald-600">FitnessBody</span>

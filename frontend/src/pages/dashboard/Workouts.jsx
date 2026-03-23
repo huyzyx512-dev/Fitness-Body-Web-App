@@ -1,31 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext.jsx';
 import { workoutService } from '../../services/modules/workoutService.js';
-import { exerciseService } from '../../services/modules/exerciseService.js';
 import Button from '../../components/common/Button.jsx';
 import Loader from '../../components/common/Loader.jsx';
 import Modal from '../../components/common/Modal.jsx';
 import Input from '../../components/common/Input.jsx';
-import { useToast } from '../../context/ToastContext.jsx';
 import PageLayout from '../../components/layout/PageLayout.jsx';
+import DatePicker from '../../components/common/DatePicker.jsx';
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'completed':
+      return 'bg-emerald-100 text-emerald-800';
+    case 'in_progress':
+      return 'bg-blue-100 text-blue-800';
+    default:
+      return 'bg-slate-100 text-slate-700';
+  }
+};
+
+const getStatusLabel = (status) => {
+  if (status === 'completed') return 'Hoàn thành';
+  if (status === 'in_progress') return 'Đang tập';
+  return 'Đã lên lịch';
+};
+
+const isSameDay = (dateA, dateB) =>
+  dateA.getFullYear() === dateB.getFullYear() &&
+  dateA.getMonth() === dateB.getMonth() &&
+  dateA.getDate() === dateB.getDate();
 
 const Workouts = () => {
   const [workouts, setWorkouts] = useState([]);
-  const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
-  const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [formData, setFormData] = useState({
     title: '',
     notes: '',
     scheduled_at: '',
-  });
-  const [exerciseFormData, setExerciseFormData] = useState({
-    sets: '',
-    reps: '',
-    weight: '',
-    comment: '',
   });
   const { showToast } = useToast();
 
@@ -37,12 +52,8 @@ const Workouts = () => {
     try {
       setLoading(true);
       setError('');
-      const [workoutsRes, exercisesRes] = await Promise.all([
-        workoutService.getAll(),
-        exerciseService.getAll(),
-      ]);
+      const workoutsRes = await workoutService.getAll();
       setWorkouts(workoutsRes.workouts || []);
-      setExercises(exercisesRes || []);
     } catch (err) {
       const msg = err.response?.data?.message || 'Không thể tải dữ liệu';
       setError(msg);
@@ -58,8 +69,7 @@ const Workouts = () => {
       await workoutService.create(formData);
       setShowCreateModal(false);
       setFormData({ title: '', notes: '', scheduled_at: '' });
-      setError('');
-      loadData();
+      await loadData();
       showToast('Đã tạo buổi tập.');
     } catch (err) {
       const msg = err.response?.data?.message || 'Không thể tạo buổi tập';
@@ -68,95 +78,43 @@ const Workouts = () => {
     }
   };
 
-  const handleAddExercise = async (e) => {
-    e.preventDefault();
-    try {
-      await workoutService.addExercise(
-        selectedWorkout.id,
-        exerciseFormData.exerciseId,
-        {
-          sets: parseInt(exerciseFormData.sets),
-          reps: parseInt(exerciseFormData.reps),
-          weight: parseFloat(exerciseFormData.weight),
-          comment: exerciseFormData.comment,
-        }
-      );
-      setShowAddExerciseModal(false);
-      setExerciseFormData({ sets: '', reps: '', weight: '', comment: '', exerciseId: '' });
-      setError('');
-      loadData();
-      showToast('Đã thêm bài tập vào buổi tập.');
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Không thể thêm bài tập';
-      setError(msg);
-      showToast(msg, 'error');
-    }
-  };
-
-  const handleStartWorkout = async (id) => {
-    try {
-      await workoutService.start(id);
-      setError('');
-      loadData();
-      showToast('Đã bắt đầu buổi tập.');
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Không thể bắt đầu buổi tập';
-      setError(msg);
-      showToast(msg, 'error');
-    }
-  };
-
-  const handleCompleteWorkout = async (id) => {
-    try {
-      await workoutService.complete(id, { comment: '' });
-      setError('');
-      loadData();
-      showToast('Đã hoàn thành buổi tập.');
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Không thể hoàn thành buổi tập';
-      setError(msg);
-      showToast(msg, 'error');
-    }
-  };
-
   const handleDeleteWorkout = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa buổi tập này?')) {
-      try {
-        await workoutService.delete(id);
-        setError('');
-        loadData();
-        showToast('Đã xóa buổi tập.');
-      } catch (err) {
-        const msg = err.response?.data?.message || 'Không thể xóa buổi tập';
-        setError(msg);
-        showToast(msg, 'error');
-      }
-    }
-  };
+    if (!window.confirm('Bạn có chắc muốn xóa buổi tập này?')) return;
 
-  const handleRemoveExercise = async (workoutId, workoutExerciseId) => {
     try {
-      await workoutService.removeExercise(workoutId, workoutExerciseId);
-      setError('');
-      loadData();
-      showToast('Đã xóa bài tập khỏi buổi tập.');
+      await workoutService.delete(id);
+      await loadData();
+      showToast('Đã xóa buổi tập.');
     } catch (err) {
-      const msg = err.response?.data?.message || 'Không thể xóa bài tập';
+      const msg = err.response?.data?.message || 'Không thể xóa buổi tập';
       setError(msg);
       showToast(msg, 'error');
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-emerald-100 text-emerald-800';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-slate-100 text-slate-700';
-    }
-  };
+  const filteredWorkouts = useMemo(
+    () =>
+      workouts.filter((workout) => {
+        if (!workout.scheduled_at) return false;
+        const workoutDate = new Date(workout.scheduled_at);
+        if (Number.isNaN(workoutDate.getTime())) return false;
+        return isSameDay(workoutDate, selectedDate);
+      }),
+    [workouts, selectedDate]
+  );
+
+  const stats = useMemo(() => {
+    const planned = workouts.filter((w) => w.status === 'planned').length;
+    const inProgress = workouts.filter((w) => w.status === 'in_progress').length;
+    const completed = workouts.filter((w) => w.status === 'completed').length;
+
+    return {
+      total: workouts.length,
+      planned,
+      inProgress,
+      completed,
+    };
+  }, [workouts]);
 
   if (loading) {
     return (
@@ -168,7 +126,7 @@ const Workouts = () => {
 
   return (
     <PageLayout
-      title="Buổi tập"
+      title="Trình theo dõi tập luyện"
       actions={<Button onClick={() => setShowCreateModal(true)}>Tạo buổi tập</Button>}
     >
       {error && (
@@ -177,63 +135,75 @@ const Workouts = () => {
         </div>
       )}
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {workouts.map((workout) => (
-          <div key={workout.id} className="card card-body">
-            <div className="flex justify-between items-start mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="card card-body">
+          <p className="text-sm font-medium text-slate-500">Tổng buổi tập</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{stats.total}</p>
+        </div>
+        <div className="card card-body">
+          <p className="text-sm font-medium text-slate-500">Đã lên lịch</p>
+          <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.planned}</p>
+        </div>
+        <div className="card card-body">
+          <p className="text-sm font-medium text-slate-500">Đang tập</p>
+          <p className="text-2xl font-bold text-blue-600 mt-1">{stats.inProgress}</p>
+        </div>
+        <div className="card card-body">
+          <p className="text-sm font-medium text-slate-500">Hoàn thành</p>
+          <p className="text-2xl font-bold text-amber-600 mt-1">{stats.completed}</p>
+        </div>
+      </div>
+
+      <div className="mt-6 max-w-xs">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Chọn ngày</label>
+        <DatePicker selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      </div>
+
+      <div className="mt-6 space-y-4">
+        {filteredWorkouts.map((workout) => (
+          <div key={workout.id} className="card card-body flex justify-between items-start gap-4">
+            <div>
               <h3 className="text-lg font-semibold text-slate-900">{workout.title}</h3>
-              <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getStatusColor(workout.status)}`}>
-                {workout.status === 'completed' ? 'Hoàn thành' : workout.status === 'in_progress' ? 'Đang tập' : 'Đã lên lịch'}
+              <span className="text-sm text-slate-500">
+                {workout.scheduled_at
+                  ? new Date(workout.scheduled_at).toLocaleDateString('vi-VN')
+                  : 'Chưa có lịch'}
               </span>
+              <p className="text-slate-600 text-sm mt-2">{workout.notes || 'Chưa có ghi chú cho buổi tập này.'}</p>
             </div>
-            <p className="text-slate-600 text-sm mb-2">{workout.notes}</p>
-            <p className="text-xs text-slate-500 mb-4">{workout.scheduled_at && new Date(workout.scheduled_at).toLocaleDateString('vi-VN')}</p>
-
-            {workout.exercises && workout.exercises.length > 0 && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-slate-700 mb-2">Bài tập</h4>
-                <ul className="space-y-1.5">
-                  {workout.exercises.map((we) => (
-                    <li key={we.id} className="flex justify-between items-center text-sm text-slate-600">
-                      <span>{we.exercise?.name} – {we.sets}x{we.reps} @ {we.weight}kg</span>
-                      {workout.status !== 'completed' && (
-                        <button type="button" onClick={() => handleRemoveExercise(workout.id, we.id)} className="text-rose-600 hover:text-rose-700">
-                          ×
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="flex gap-2 flex-wrap pt-2 border-t border-slate-100">
-              {workout.status === 'planned' && (
-                <>
-                  <Button size="sm" variant="primary" onClick={() => { setSelectedWorkout(workout); setShowAddExerciseModal(true); }}>
-                    Thêm bài tập
+            
+            {/* //TODO: Hiển thị thêm phần calo đã đốt và các thông tin cần thiết khác */}
+            <div className="flex flex-col items-end gap-2">
+              <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getStatusColor(workout.status)}`}>
+                {getStatusLabel(workout.status)}
+              </span>
+              <div className="flex flex-col  gap-2">
+                <Link to={`/workouts/${workout.id}`}>
+                  <Button size="sm">Chi tiết</Button>
+                </Link>
+                {workout.status !== 'in_progress' && (
+                  <Button size="sm" variant="danger" onClick={() => handleDeleteWorkout(workout.id)}>
+                    Xóa
                   </Button>
-                  <Button size="sm" variant="success" onClick={() => handleStartWorkout(workout.id)}>Bắt đầu</Button>
-                </>
-              )}
-              {workout.status === 'in_progress' && (
-                <Button size="sm" variant="success" onClick={() => handleCompleteWorkout(workout.id)}>Hoàn thành</Button>
-              )}
-              {workout.status !== 'in_progress' && (
-                <Button size="sm" variant="danger" onClick={() => handleDeleteWorkout(workout.id)}>Xóa</Button>
-              )}
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
       {workouts.length === 0 && (
-        <div className="card card-body text-center py-12 text-slate-500">
+        <div className="card card-body text-center py-12 text-slate-500 mt-6">
           Chưa có buổi tập nào. Tạo buổi tập mới để bắt đầu!
         </div>
       )}
 
-      {/* Create Workout Modal */}
+      {workouts.length > 0 && filteredWorkouts.length === 0 && (
+        <div className="card card-body text-center py-10 text-slate-500 mt-6">
+          Không có buổi tập trong ngày đã chọn.
+        </div>
+      )}
+
       <Modal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
@@ -269,72 +239,6 @@ const Workouts = () => {
             value={formData.scheduled_at}
             onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
             required
-          />
-        </form>
-      </Modal>
-
-      {/* Add Exercise Modal */}
-      <Modal
-        isOpen={showAddExerciseModal}
-        onClose={() => setShowAddExerciseModal(false)}
-        title="Thêm Bài Tập"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setShowAddExerciseModal(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleAddExercise}>Thêm</Button>
-          </>
-        }
-      >
-        <form onSubmit={handleAddExercise} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Bài tập <span className="text-rose-500">*</span>
-            </label>
-            <select
-              value={exerciseFormData.exerciseId}
-              onChange={(e) => setExerciseFormData({ ...exerciseFormData, exerciseId: e.target.value })}
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              required
-            >
-              <option value="">Chọn bài tập</option>
-              {exercises.map((ex) => (
-                <option key={ex.id} value={ex.id}>
-                  {ex.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Input
-            label="Số hiệp"
-            type="number"
-            name="sets"
-            value={exerciseFormData.sets}
-            onChange={(e) => setExerciseFormData({ ...exerciseFormData, sets: e.target.value })}
-            required
-          />
-          <Input
-            label="Số lần lặp"
-            type="number"
-            name="reps"
-            value={exerciseFormData.reps}
-            onChange={(e) => setExerciseFormData({ ...exerciseFormData, reps: e.target.value })}
-            required
-          />
-          <Input
-            label="Trọng lượng (kg)"
-            type="number"
-            step="0.1"
-            name="weight"
-            value={exerciseFormData.weight}
-            onChange={(e) => setExerciseFormData({ ...exerciseFormData, weight: e.target.value })}
-          />
-          <Input
-            label="Ghi chú"
-            name="comment"
-            value={exerciseFormData.comment}
-            onChange={(e) => setExerciseFormData({ ...exerciseFormData, comment: e.target.value })}
           />
         </form>
       </Modal>
