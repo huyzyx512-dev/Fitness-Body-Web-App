@@ -61,7 +61,7 @@ class WorkoutService {
                 include: [{
                     model: db.Exercise,
                     as: 'exercise',
-                    attributes: ['id', 'name', 'description', 'category', 'muscle_group', 'met_value', 'difficulty_level', 'equipment', 'video_url', 'thumbnail_url']
+                    attributes: ['id', 'name', 'description', 'category_id', 'met_value', 'difficulty_level', 'equipment', 'video_url', 'thumbnail_url']
                 }],
                 order: [['order_index', 'ASC']] // Sắp xếp bài tập theo thứ tự
             }]
