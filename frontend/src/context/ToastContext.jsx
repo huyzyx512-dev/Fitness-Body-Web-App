@@ -23,7 +23,7 @@ export const ToastProvider = ({ children }) => {
       {toast && (
         <div
           role="alert"
-          className="fixed bottom-6 right-6 z-50 max-w-sm transition-all duration-300"
+          className="fixed top-16 right-6 z-50 max-w-sm transition-all duration-300 mt-4"
           aria-live="polite"
         >
           <div
