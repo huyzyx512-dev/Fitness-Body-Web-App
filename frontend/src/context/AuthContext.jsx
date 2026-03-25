@@ -9,16 +9,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  console.log('[AuthProvider] Mounted - Bắt đầu kiểm tra auth');
   // Check if user is logged in on mount
   useEffect(() => {
     const checkAuth = async () => {
-      console.log('[AuthProvider] useEffect: Kiểm tra auth khi mount');
       const token = localStorage.getItem('accessToken');
       console.log('[AuthProvider] Token trong localStorage:', !!token ? 'Có' : 'Không có');
       if (token) {
         try {
-          console.log('[AuthProvider] Token hợp lệ, kiểm tra user');
           const response = await userApi.getCurrentUser();
           console.log('[AuthProvider] User response:', response);
           setUser(response.user);
@@ -57,9 +54,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (data) => {
-    console.log('[AuthProvider] register called với email:', data.email);
+  const registerUser = async (data) => {
     try {
+
       await authService.register(data);
       // After registration, automatically login
       return await login(data.email, data.password);
@@ -69,18 +66,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    console.log('[AuthProvider] logout called');
     try {
       await authService.logout();
-      console.log('[AuthProvider] Logout thành công');
     } catch (error) {
-      console.error('[AuthProvider] Logout thất bại:', error);
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('accessToken');
       setUser(null);
       setIsAuthenticated(false);
-      console.log('[AuthProvider] Logout hoàn tất, isAuthenticated = false');
     }
   };
 
@@ -89,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated,
     login,
-    register,
+    registerUser,
     logout,
     setUser,
   };
