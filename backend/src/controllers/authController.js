@@ -12,11 +12,12 @@ const REFRESH_TOKEN_TTL = 14 * 14 * 60 * 60 * 1000
 
 export const register = async (req, res) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password, name, birthday, height, weight, gender } = req.body;
         // validate input
-        if (!email || !password || !name) {
-            return res.status(400).json({ message: "Không thể thiếu email, password, name trong quá trình đăng ký tài khoản" })
+        if (!email || !password || !name || !birthday || !height || !weight) {
+            return res.status(400).json({ message: "Không thể thiếu email, password, name, birthday, height, weight, gender trong quá trình đăng ký tài khoản" })
         }
+        console.log(birthday)
 
         if (password.length < 6) {
             return res.status(400).json({ message: "Mật khẩu phải có ít nhất 6 kí tự" })
@@ -37,7 +38,11 @@ export const register = async (req, res) => {
             email,
             password_hash,
             name,
-            role_id: 2
+            role_id: 2,
+            date_of_birth: birthday,
+            height,
+            weight,
+            gender
         })
 
         return res.sendStatus(204);
@@ -145,13 +150,13 @@ export const refreshToken = async (req, res) => {
             return res.status(401).json({ message: "Refresh token revoked" })
         }
 
-        const newAccessToken = jwt.sign(
+        const accessToken = jwt.sign(
             { id: session.userId, tokenVersion: user.tokenVersion },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: ACCESS_TOKEN_TTL }
         )
 
-        return res.status(200).json({ newAccessToken })
+        return res.status(200).json({ accessToken })
     } catch (error) {
         console.log("Lỗi trong quá trình refresh token: ", error);
         return res.status(500).json({ message: "Lỗi hệ thống" });
