@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const response = await userApi.getCurrentUser();
-          console.log('[AuthProvider] User response:', response);
           setUser(response.user);
           setIsAuthenticated(true);
         } catch (error) {
@@ -27,26 +26,20 @@ export const AuthProvider = ({ children }) => {
         }
       }
       setLoading(false);
-      console.log('[AuthProvider] useEffect: Hoàn thành kiểm tra auth');
     };
 
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
-    console.log('[AuthProvider] login: Bắt đầu đăng nhập');
+  const loginUser = async (email, password) => {
     try {
       const response = await authService.login(email, password);
-      console.log('[AuthProvider] login: Response:', response);
       localStorage.setItem('accessToken', response.accessToken);
 
       // Fetch user data
-      console.log('[AuthProvider] Gọi getCurrentUser sau login...');
       const userResponse = await userApi.getCurrentUser();
-      console.log('[AuthProvider] User data sau login:', userResponse.user?.email);
       setUser(userResponse.user);
       setIsAuthenticated(true);
-      console.log('[AuthProvider] State cập nhật: isAuthenticated = true');
       return response;
     } catch (error) {
       console.error('[AuthProvider] login thất bại:', error.message || error);
@@ -81,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     isAuthenticated,
-    login,
+    loginUser,
     registerUser,
     logout,
     setUser,

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Create axios instance
 const axiosInstance = axios.create({
@@ -31,21 +31,30 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (originalRequest.url.includes("/auth/register") ||
+      originalRequest.url.includes("/auth/login") ||
+      originalRequest.url.includes("/auth/refresh-token")) {
+      return Promise.reject(error);
+    }
+
     // If error is 401 and we haven't tried to refresh yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 403 && !originalRequest._retry) {
+      console.log("refresh", originalRequest._retry);
       originalRequest._retry = true;
 
       try {
+        const refreshToken = localStorage.getItem('refreshToken');
+
         // Try to refresh the token
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {}, {
+        const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, { refreshToken: refreshToken, }, {
           withCredentials: true,
         });
 
-        const { newAccessToken } = response.data;
-        localStorage.setItem('accessToken', newAccessToken);
+        const { accessToken } = response.data;
+        localStorage.setItem('accessToken', accessToken);
 
         // Retry the original request with new token
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // Refresh failed, logout user
