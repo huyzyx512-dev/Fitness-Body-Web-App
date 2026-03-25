@@ -4,7 +4,12 @@ import jwt from "jsonwebtoken"
 export const authenticationToken = async (req, res, next) => {
     try {
         const authHeader = req.headers["authorization"]
-        const token = authHeader.split(" ")[1]
+        if (!authHeader || typeof authHeader !== "string") {
+            return res.status(401).json({ message: "Không tìm thấy Authorization header" })
+        }
+
+        const parts = authHeader.split(" ")
+        const token = parts[1]
 
         if (!token) {
             return res.status(401).json({ message: "Không tìm thấy accesstoken" })

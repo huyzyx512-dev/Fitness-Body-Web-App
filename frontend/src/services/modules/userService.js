@@ -6,4 +6,10 @@ export const userService = {
     const response = await axiosInstance.get('/user');
     return response.data;
   },
+
+  // Update current user's profile
+  updateCurrentUser: async (data) => {
+    const response = await axiosInstance.patch('/user', data);
+    return response.data;
+  },
 };
