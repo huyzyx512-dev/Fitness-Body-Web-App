@@ -56,8 +56,7 @@ const AppRoutes = () => {
       <Route path="/exercises" element={<Exercises />} />
       {/* <Route path="/workout-logs" element={<ProtectedRoute><WorkoutLogs /></ProtectedRoute>} /> */}
       <Route path="/workout-logs" element={<WorkoutLogs />} />
-      {/* <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} /> */}
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
       <Route path="/bmi" element={<BMICalculator />} />
       {/* <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} /> */}
