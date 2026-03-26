@@ -16,6 +16,7 @@ const Button = ({
     danger: 'bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500',
     success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
     outline: 'border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 focus:ring-emerald-500',
+    warming: 'bg-yellow-500 text-black hover:bg-yellow-600 focus:ring-yellow-400'
   };
 
   const sizes = {
