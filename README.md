@@ -1,237 +1,237 @@
-# WORKOUT TRACKER BACKEND API
+<div align="center">
+  <h1>💪 Workout Tracker Backend API</h1>
+  
+  <p>
+    <strong>Short Description:</strong> A backend system for a workout tracking application, providing RESTful APIs for user authentication, workout planning, scheduling, and progress tracking. Built with Node.js, Express, and MySQL using a layered architecture for scalability and maintainability.
+  </p>
 
-## 1. Thông tin chung
+  <br />
 
-**Tên đồ án**: Xây dựng hệ thống Backend cho ứng dụng theo dõi tập luyện (Workout Tracker)
+  <!-- Badges -->
+  <p>
+    <img src="https://img.shields.io/badge/Node.js-18-green?style=for-the-badge&logo=node.js&logoColor=white" />
+    <img src="https://img.shields.io/badge/Express.js-4-black?style=for-the-badge&logo=express&logoColor=white" />
+    <img src="https://img.shields.io/badge/MySQL-8-00758F?style=for-the-badge&logo=mysql&logoColor=white" />
+    <img src="https://img.shields.io/badge/Sequelize-ORM-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white" />
+    <img src="https://img.shields.io/badge/JWT-Auth-orange?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
+    <img src="https://img.shields.io/badge/Bcrypt-Security-blue?style=for-the-badge" />
+  </p>
+</div>
 
-**Sinh viên thực hiện**: Nguyễn Xuân Huy
-**Ngành / Chuyên ngành**: Công nghệ Thông tin
-**Loại đồ án**: Đồ án tốt nghiệp / Project cuối kỳ
+<br />
 
----
+## ✨ Key Features
 
-## 2. Mục tiêu đồ án
+- 🔐 User Authentication (Register / Login with JWT)
+- 🏋️ Workout Management (Create, update, delete workout plans)
+- 📅 Workout Scheduling (Plan workouts by date and time)
+- 📊 Workout Logging (Track duration, calories, notes)
+- 📈 Progress Reports (Summary statistics of workouts)
+- 🛡️ Security: Password hashing (bcrypt), JWT protection
 
-Đồ án nhằm mục tiêu xây dựng một hệ thống Backend hoàn chỉnh cho ứng dụng theo dõi tập luyện, cho phép người dùng:
+<br />
 
-* Đăng ký, đăng nhập và xác thực bằng JWT
-* Tạo và quản lý kế hoạch tập luyện cá nhân
-* Lên lịch các buổi tập theo ngày giờ
-* Ghi nhận kết quả tập luyện (thời gian, calories, nhận xét)
-* Thống kê và báo cáo tiến trình tập luyện
+## 🎯 Project Objectives
 
-Thông qua đồ án, sinh viên áp dụng các kiến thức về:
+This project aims to build a complete backend system for a workout tracking application, allowing users to:
 
-* Thiết kế cơ sở dữ liệu quan hệ
-* Xây dựng RESTful API
-* Áp dụng OOP trong Backend
-* Bảo mật với JWT
-* Làm việc với ORM (Sequelize)
+- Register and authenticate using JWT
+- Manage personal workout plans
+- Schedule workout sessions
+- Record workout results
+- Analyze training progress
 
----
+Additionally, the project demonstrates:
 
-## 3. Công nghệ sử dụng
+- Relational database design
+- RESTful API development
+- Backend OOP practices
+- Secure authentication with JWT
+- ORM usage with Sequelize
+
+<br />
+
+## 🚀 Tech Stack
 
 ### Backend
+- Node.js
+- Express.js
+- MySQL
+- Sequelize ORM
+- JSON Web Token (JWT)
+- bcrypt
 
-* Node.js
-* Express.js
-* MySQL
-* Sequelize ORM
-* JSON Web Token (JWT)
-* bcrypt
+### Tools & Utilities
+- sequelize-cli
+- dotenv
+- nodemon
+- Postman (API testing)
 
-### Công cụ & thư viện hỗ trợ
+<br />
 
-* sequelize-cli
-* dotenv
-* nodemon
-* Postman (test API)
-
----
-
-## 4. Kiến trúc hệ thống
-
-Hệ thống được xây dựng theo mô hình **Layered Architecture**, bao gồm:
-
+## 🏗️ System Architecture
 ```
+The system follows a **Layered Architecture**:
 Client (React)
-     ↓
+↓
 Routes
-     ↓
-Controllers (Xử lý request/response)
-     ↓
+↓
+Controllers
+↓
 Services (Business Logic)
-     ↓
+↓
 Models (Sequelize ORM)
-     ↓
+↓
 MySQL Database
 ```
 
-Kiến trúc này giúp:
+### Benefits:
+- Clear separation of concerns
+- Easy to maintain and extend
+- Scalable structure
 
-* Dễ bảo trì
-* Dễ mở rộng
-* Tách biệt rõ trách nhiệm từng tầng
+<br />
 
----
+## 🗄️ Database Design
 
-## 5. Thiết kế cơ sở dữ liệu
+### Main Tables
 
-### 5.1 Danh sách bảng chính
+- users
+- exercises
+- workouts
+- workout_exercises
+- workout_logs
 
-* users
-* exercises
-* workouts
-* workout_exercises
-* workout_logs
+### Relationships
 
-### 5.2 Quan hệ giữa các bảng
+- User (1) → (N) Workout  
+- Workout (1) → (N) WorkoutExercise  
+- Exercise (1) → (N) WorkoutExercise  
+- Workout (1) → (1) WorkoutLog  
 
-* User 1 – N Workout
-* Workout 1 – N WorkoutExercise
-* Exercise 1 – N WorkoutExercise
-* Workout 1 – 1 WorkoutLog
+> ERD diagram is included in the project report.
 
-(Có ERD diagram đính kèm trong báo cáo đồ án)
+<br />
 
----
+## 🔧 Core Functionalities
 
-## 6. Đặc tả chức năng chính
+### 🔐 Authentication
+- Register
+- Login
+- JWT-based authorization
 
-### 6.1 Xác thực người dùng
+### 🏋️ Exercises
+- Pre-seeded exercise data
+- Read-only access for users
 
-* Đăng ký tài khoản
-* Đăng nhập
-* Sử dụng JWT để bảo vệ các API riêng tư
+### 📅 Workouts
+- Create workout plans
+- Add multiple exercises
+- Update / delete workouts
+- Schedule workouts
 
-### 6.2 Quản lý bài tập (Exercise)
+### 📊 Logs & Reports
+- Record workout results
+- Generate summary statistics (duration, calories, sessions)
 
-* Dữ liệu bài tập được seed sẵn
-* Người dùng chỉ được phép xem
+<br />
 
-### 6.3 Quản lý Workout
-
-* Tạo kế hoạch tập luyện
-* Thêm nhiều bài tập vào một workout
-* Cập nhật hoặc xóa workout
-* Lên lịch thời gian tập
-
-### 6.4 Ghi log & báo cáo
-
-* Ghi nhận kết quả buổi tập
-* Thống kê số buổi tập, calories, thời gian tập
-
----
-
-## 7. RESTful API (Tóm tắt)
+## 📡 RESTful API (Overview)
 
 ### Authentication
-
-* POST /auth/register
-* POST /auth/login
+- `POST /auth/register`
+- `POST /auth/login`
 
 ### Exercises
-
-* GET /exercises
+- `GET /exercises`
 
 ### Workouts
-
-* POST /workouts
-* GET /workouts
-* PUT /workouts/:id
-* DELETE /workouts/:id
+- `POST /workouts`
+- `GET /workouts`
+- `PUT /workouts/:id`
+- `DELETE /workouts/:id`
 
 ### Workout Logs
-
-* POST /workouts/:id/log
+- `POST /workouts/:id/log`
 
 ### Reports
+- `GET /reports/summary`
 
-* GET /reports/summary
+<br />
 
----
+## 🧠 OOP & Design Principles
 
-## 8. Áp dụng lập trình hướng đối tượng (OOP)
+- **Model:** Sequelize models represent database tables
+- **Service Layer:** Handles business logic
+- **Controller:** Handles HTTP request/response
+- **Middleware:** JWT authentication
 
-* **Model**: Mỗi bảng CSDL tương ứng một class Sequelize
-* **Service Layer**: Đóng gói business logic
-* **Controller**: Chịu trách nhiệm xử lý HTTP request/response
-* **Middleware**: Xử lý xác thực JWT
+### Principles Applied:
+- Encapsulation
+- Single Responsibility Principle
+- Separation of Concerns
 
-Nguyên lý OOP được áp dụng:
+<br />
 
-* Encapsulation
-* Single Responsibility Principle
-* Separation of Concerns
-
----
-
-## 9. Cấu trúc thư mục
-
+## 📂 Project Structure
 ```
 backend/
 ├─ src/
-│  ├─ controllers/
-│  ├─ services/
-│  ├─ models/
-│  ├─ routes/
-│  ├─ middlewares/
-│  ├─ migrations/
-│  ├─ seeders/
+│ ├─ controllers/
+│ ├─ services/
+│ ├─ models/
+│ ├─ routes/
+│ ├─ middlewares/
+│ ├─ migrations/
+│ ├─ seeders/
 │
 ├─ config/
 ├─ app.js
 ├─ server.js
 ```
+<br />
 
----
+## ⚙️ Getting Started
 
-## 10. Hướng dẫn cài đặt & chạy dự án
-
-### 10.1 Cài đặt
+### Installation
 
 ```bash
 npm install
 ```
 
-### 10.2 Cấu hình môi trường
+Environment Configuration
 
-Tạo file `.env`
-
+Create a .env file:
 ```
 DB_HOST=localhost
 DB_NAME=fitness_tracker
 DB_USER=root
-DB_PASSWORD=...
+DB_PASSWORD=your_password
 JWT_SECRET=your_secret_key
 ```
-
-### 10.3 Migration & Seeder
-
-```bash
+Migration & Seeder
+```
 npx sequelize-cli db:migrate
 npx sequelize-cli db:seed:all
-```
-
-### 10.4 Chạy server
-
-```bash
+Run Server
 npm run dev
 ```
+<br />
 
----
+## 📌 Future Improvements
 
-## 11. Hướng phát triển trong tương lai
+Add Admin role & role-based access control
+Integrate React frontend
+Add AI-based recommendations (food/workout)
+Advanced analytics & charts
+Deploy to cloud (AWS / Render / Docker)
+<br />
 
-* Thêm role Admin
-* Kết nối Frontend React
-* Thêm AI nhận diện món ăn / bài tập
-* Thêm biểu đồ thống kê nâng cao
-* Deploy lên cloud
+## 📄 Conclusion
 
----
+This project successfully builds a complete backend system for a workout tracking application, covering authentication, data management, and system architecture. It demonstrates strong backend development skills and understanding of modern software design principles.
 
-## 12. Kết luận
-
-Đồ án đã xây dựng được một hệ thống Backend hoàn chỉnh cho ứng dụng theo dõi tập luyện, đáp ứng các yêu cầu về xác thực, quản lý dữ liệu, bảo mật và mở rộng. Thông qua đồ án, sinh viên đã củng cố kiến thức về Backend, cơ sở dữ liệu và kiến trúc phần mềm hiện đại.
+<br />
+👨‍💻 Author
+Nguyễn Xuân Huy
+GitHub: https://github.com/huyzyx512-dev
