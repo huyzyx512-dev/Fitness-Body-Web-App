@@ -1,4 +1,38 @@
 import db from '../models/index.js';
+import z from 'zod';
+
+const workoutExerciseSchema = z.object({
+  // Bắt buộc phải là số nguyên (int), lớn hơn hoặc bằng 1
+  sets: z.number({ required_error: "Thiếu số hiệp", invalid_type_error: "Số hiệp phải là một số" })
+    .int("Số hiệp phải là số nguyên")
+    .min(1, "Số hiệp phải lớn hơn 0"),
+
+  reps: z.number({ required_error: "Thiếu số lần lặp", invalid_type_error: "Số lần lặp phải là một số" })
+    .int("Số lần lặp phải là số nguyên")
+    .min(1, "Số lần lặp phải lớn hơn 0"),
+
+  // Cân nặng có thể có phần thập phân, có thể null hoặc không gửi lên (optional)
+  weight: z.number({ invalid_type_error: "Trọng lượng phải là một số" })
+    .nullable()
+    .optional(),
+
+  // Ghi chú là chuỗi, có thể bỏ qua
+  comment: z.string({ invalid_type_error: "Ghi chú phải là chữ" })
+    .optional(),
+
+  order_index: z.number({ invalid_type_error: "Thứ tự bài tập phải là một số" })
+    .int("Thứ tự bài tập phải là số nguyên")
+    .min(0, "Thứ tự không được là số âm")
+    .optional()
+    .default(0), // Trùng khớp với DEFAULT '0' trong DB
+
+  // THÊM MỚI: Thời gian nghỉ (giây)
+  rest_time_seconds: z.number({ invalid_type_error: "Thời gian nghỉ phải là một số" })
+    .int("Thời gian nghỉ phải là số nguyên")
+    .min(0, "Thời gian nghỉ không được là số âm")
+    .optional()
+    .default(60), // Trùng khớp với DEFAULT '60' trong DB
+})
 
 export const getAllExercises = async () => {
   return await db.Exercise.findAll({
@@ -49,8 +83,19 @@ export const deleteExerciseById = async (id, user) => {
   await db.Exercise.destroy({ where: { id: exercise.id } });
 };
 
-export const addExerciseToWorkoutById = async (user, params, data) => {
+export const checkDataBeforeUse = async (user, params, data, isUpdate = false) => {
   const { workoutId, exerciseId } = params;
+
+  const validationResult = workoutExerciseSchema.safeParse(data);
+
+  if (!validationResult.success) {
+    const firstErrorMessage = validationResult.error.errors[0].message;
+    const error = new Error(firstErrorMessage);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const cleanData = validationResult.data;
 
   // 1. Kiểm tra Exercise có tồn tại không
   const exercise = await db.Exercise.findByPk(exerciseId);
@@ -88,28 +133,50 @@ export const addExerciseToWorkoutById = async (user, params, data) => {
     }
   });
 
-  if (existingWorkoutExercise) {
+  if (!isUpdate && existingWorkoutExercise) {
     const error = new Error("Bài tập đã tồn tại trong buổi tập này");
     error.statusCode = 400;
     throw error;
   }
 
-  // 4. Validate dữ liệu đầu vào (Sets, Reps, Weight)
-  if (!data || Object.keys(data).length === 0) {
-    const error = new Error("Dữ liệu sets/reps không hợp lệ");
-    error.statusCode = 400;
+  if (isUpdate && !existingWorkoutExercise) {
+    // Nếu là chế độ Sửa, mà KHÔNG tìm thấy bài tập -> Lỗi không có data để update
+    const error = new Error("Không tìm thấy bài tập trong buổi tập này để cập nhật");
+    error.statusCode = 404;
     throw error;
   }
 
-  // 5. Tạo record trong bảng trung gian
+  return { workout, exercise, cleanData };
+}
+
+export const addExerciseToWorkoutById = async (user, params, data) => {
+  const { workout, exercise, cleanData } = await checkDataBeforeUse(user, params, data, false);
+
   await db.WorkoutExercise.create({
-    ...data,
+    ...cleanData,
     workout_id: workout.id,
     exercise_id: exercise.id
   });
 
   return true;
 };
+
+export const updateExerciseToWorkoutById = async (user, params, data) => {
+  const { workout, exercise, cleanData } = await checkDataBeforeUse(user, params, data, true);
+
+  await db.WorkoutExercise.update(
+    { ...cleanData },
+    {
+      where: {
+        workout_id: workout.id,
+        exercise_id: exercise.id
+      }
+    }
+  );
+
+  return true;
+};
+
 
 export const removeExerciseToWorkoutById = async (user, params) => {
   const { workoutId, workoutExerciseId } = params;
