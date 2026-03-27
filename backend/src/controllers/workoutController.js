@@ -1,5 +1,5 @@
 
-import { addExerciseToWorkoutById, completeWorkoutByUser, removeExerciseToWorkoutById, startWorkoutById } from "../services/exerciseService.js";
+import { addExerciseToWorkoutById, completeWorkoutByUser, removeExerciseToWorkoutById, startWorkoutById, updateExerciseToWorkoutById } from "../services/exerciseService.js";
 import WorkoutService from "../services/workoutService.js";
 
 export const createWorkout = async (req, res) => {
@@ -100,6 +100,21 @@ export const addExerciseToWorkout = async (req, res) => {
         return res.status(200).json({ message: "Thêm bài tập vào lịch thành công!" });
     } catch (error) {
         console.error("Lỗi addExerciseToWorkout:", error);
+
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: error.message || "Lỗi hệ thống"
+        });
+    }
+}
+
+export const updateExerciseToWorkout = async (req, res) => {
+    try {
+        await updateExerciseToWorkoutById(req.user, req.params, req.body);
+
+        return res.status(200).json({message: "Cập nhật bài tập thành công."});
+    } catch (error) {
+        console.error("Lỗi updateExerciseToWorkout:", error);
 
         const statusCode = error.statusCode || 500;
         return res.status(statusCode).json({
