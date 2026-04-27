@@ -49,24 +49,20 @@ const AppRoutes = () => {
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/testdashboard" element={<TestDashboard />} />
-      {/* <Route path="/workouts" element={<ProtectedRoute><Workouts /></ProtectedRoute>} /> */}
-      <Route path="/workouts" element={<Workouts />} />
-      <Route path="/workouts/:id" element={<WorkoutDetail />} />
-      <Route path="/exercises" element={<Exercises />} />
-      {/* <Route path="/workout-logs" element={<ProtectedRoute><WorkoutLogs /></ProtectedRoute>} /> */}
-      <Route path="/workout-logs" element={<WorkoutLogs />} />
-      {/* <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} /> */}
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/testdashboard" element={<ProtectedRoute><TestDashboard /></ProtectedRoute>} />
+        <Route path="/workouts" element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
+        <Route path="/workouts/:id" element={<ProtectedRoute><WorkoutDetail /></ProtectedRoute>} />
+        <Route path="/exercises" element={<Exercises />} />
+        <Route path="/workout-logs" element={<ProtectedRoute><WorkoutLogs /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
-      <Route path="/bmi" element={<BMICalculator />} />
-      {/* <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} /> */}
-      <Route path="/ai-assistant" element={<AIAssistant />} />
-      <Route path="/food" element={<ProtectedRoute><FoodTracker /></ProtectedRoute>} />
+        <Route path="/bmi" element={<BMICalculator />} />
+        <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
+        <Route path="/food" element={<ProtectedRoute><FoodTracker /></ProtectedRoute>} />
 
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
   );
 };
 
-export default AppRoutes;
+      export default AppRoutes;
