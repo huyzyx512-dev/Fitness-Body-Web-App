@@ -5,17 +5,14 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     const transaction = await queryInterface.sequelize.transaction();
     try {
-      // 1. Thêm category_id vào Exercise
       await queryInterface.addColumn('Exercise', 'category_id', {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: { model: 'category', key: 'id' },
+        references: { model: 'Category', key: 'id' },
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE'
       }, { transaction });
 
-      // 2. Migrate dữ liệu: tạo category từ category string cũ (nếu có)
-      // Lấy các category distinct từ Exercise
       const [exercises] = await queryInterface.sequelize.query(
         `SELECT DISTINCT category FROM Exercise WHERE category IS NOT NULL`,
         { transaction }
@@ -25,20 +22,18 @@ module.exports = {
         if (!row.category) continue;
         const now = new Date();
         await queryInterface.sequelize.query(
-          `INSERT INTO category (name, createdAt, updatedAt) VALUES (?, ?, ?)`,
+          `INSERT INTO Category (name, createdAt, updatedAt) VALUES (?, ?, ?)`,
           {
             replacements: [row.category, now, now],
             transaction
           }
         );
-        // Cập nhật category_id cho các exercise tương ứng
         await queryInterface.sequelize.query(
-          `UPDATE Exercise SET category_id = (SELECT id FROM category WHERE name = ? LIMIT 1) WHERE category = ?`,
+          `UPDATE Exercise SET category_id = (SELECT id FROM Category WHERE name = ? LIMIT 1) WHERE category = ?`,
           { replacements: [row.category, row.category], transaction }
         );
       }
 
-      // 3. Migrate muscle_group string → bảng muscle_group
       const [muscleRows] = await queryInterface.sequelize.query(
         `SELECT DISTINCT muscle_group FROM Exercise WHERE muscle_group IS NOT NULL`,
         { transaction }
@@ -48,12 +43,11 @@ module.exports = {
         if (!row.muscle_group) continue;
         const now = new Date();
         await queryInterface.sequelize.query(
-          `INSERT INTO muscle_group (name, createdAt, updatedAt) VALUES (?, ?, ?)`,
+          `INSERT INTO Muscle_group (name, createdAt, updatedAt) VALUES (?, ?, ?)`,
           { replacements: [row.muscle_group, now, now], transaction }
         );
       }
 
-      // 4. Tạo bảng exercise_muscle
       await queryInterface.createTable('Exercise_muscle', {
         exercise_id: {
           type: Sequelize.INTEGER,
@@ -72,7 +66,7 @@ module.exports = {
         is_primary: {
           type: Sequelize.BOOLEAN,
           defaultValue: true,
-          comment: 'Để biết đây là nhóm cơ chính hay phụ'
+          comment: 'Primary muscle marker'
         },
         createdAt: {
           allowNull: false,
@@ -84,7 +78,6 @@ module.exports = {
         }
       }, { transaction });
 
-      // 5. Migrate dữ liệu vào exercise_muscle từ Exercise.muscle_group
       const [exWithMuscle] = await queryInterface.sequelize.query(
         `SELECT id, muscle_group FROM Exercise WHERE muscle_group IS NOT NULL`,
         { transaction }
@@ -95,12 +88,11 @@ module.exports = {
         await queryInterface.sequelize.query(
           `INSERT INTO Exercise_muscle (exercise_id, muscle_group_id, is_primary, createdAt, updatedAt)
            SELECT ?, mg.id, true, ?, ?
-           FROM muscle_group mg WHERE mg.name = ? LIMIT 1`,
+           FROM Muscle_group mg WHERE mg.name = ? LIMIT 1`,
           { replacements: [ex.id, now, now, ex.muscle_group], transaction }
         );
       }
 
-      // 6. Xóa các cột cũ khỏi Exercise
       await queryInterface.removeColumn('Exercise', 'muscle_group', { transaction });
       await queryInterface.removeColumn('Exercise', 'category', { transaction });
       await queryInterface.removeColumn('Exercise', 'met_value', { transaction });
@@ -115,7 +107,6 @@ module.exports = {
   async down (queryInterface, Sequelize) {
     const transaction = await queryInterface.sequelize.transaction();
     try {
-      // Reverse: thêm lại cột cũ
       await queryInterface.addColumn('Exercise', 'muscle_group', {
         type: Sequelize.STRING
       }, { transaction });
@@ -129,7 +120,6 @@ module.exports = {
         defaultValue: 3.0
       }, { transaction });
 
-      // Restore dữ liệu từ exercise_muscle → muscle_group string
       await queryInterface.sequelize.query(`
         UPDATE Exercise e
         JOIN Exercise_muscle em ON em.exercise_id = e.id AND em.is_primary = true
@@ -137,7 +127,6 @@ module.exports = {
         SET e.muscle_group = mg.name
       `, { transaction });
 
-      // Restore category
       await queryInterface.sequelize.query(`
         UPDATE Exercise e
         JOIN Category c ON c.id = e.category_id

@@ -59,7 +59,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'User'
+    tableName: 'user',
+    freezeTableName: true // Ngăn sequalize tự đổi tên
   });
   return User;
 };

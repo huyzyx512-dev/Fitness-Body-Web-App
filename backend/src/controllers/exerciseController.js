@@ -1,77 +1,34 @@
-import { createNewExercise, deleteExerciseById, getAllExercises, updateInfoExercise } from "../services/exerciseService.js";
+import asyncHandler from "../middlewares/asyncHandler.js";
+import {
+  createNewExercise,
+  deleteExerciseById,
+  getAllExercises,
+  updateInfoExercise,
+} from "../services/exerciseService.js";
+import { parseSchema } from "../validators/common.js";
+import {
+  exerciseSchema,
+  exerciseUpdateSchema,
+} from "../validators/exerciseValidator.js";
 
-export const getExercises = async (req, res) => {
-    try {
-        const exercises = await getAllExercises();
+export const getExercises = asyncHandler(async (req, res) => {
+  const exercises = await getAllExercises();
+  return res.status(200).json({ exercises });
+});
 
-        if (!exercises)
-            return res.status(204).json({ exercises })
+export const createExercise = asyncHandler(async (req, res) => {
+  const payload = parseSchema(exerciseSchema, req.body);
+  const exercise = await createNewExercise(payload, req.user.id);
+  return res.status(201).json({ exercise });
+});
 
-        return res.status(200).json(exercises);
-    } catch (err) {
-        console.log("Lỗi trong quá trình get exercises: ", err);
-        return res.status(500).json({ message: "Lỗi hệ thống" })
-    }
-};
+export const updateExercise = asyncHandler(async (req, res) => {
+  const payload = parseSchema(exerciseUpdateSchema, req.body);
+  const exercise = await updateInfoExercise(req.params.id, payload, req.user);
+  return res.status(200).json({ exercise });
+});
 
-export const createExercise = async (req, res) => {
-    try {
-        const { name, description, category, muscle_group } = req.body;
-        const userId = req.user.id;
-
-        if (!name || !description || !category || !muscle_group)
-            return res.status(400).json({ message: "Không thể thiếu name, description, category, muscle_group" })
-
-        const exercise = await createNewExercise(name, description, category, muscle_group, userId);
-
-        return res.status(201).json(exercise);
-    } catch (err) {
-        console.log("Lỗi trong quá trình create exercise: ", err)
-        return res.status(500).json({ message: "Lỗi hệ thống" });
-    }
-};
-
-export const updateExercise = async (req, res) => {
-    try {
-        const exercise = await updateInfoExercise(
-            req.params.id,
-            req.body,
-            req.user
-        );
-
-        return res.status(200).json(exercise);
-    } catch (err) {
-        if (err.message === 'NOT_FOUND')
-            return res.status(404).json({ message: 'Not found' });
-        if (err.message === 'FORBIDDEN')
-            return res.status(403).json({ message: 'Forbidden' });
-
-        res.status(400).json({ message: err.message });
-    }
-};
-
-export const deleteExercise = async (req, res) => {
-    try {
-        await deleteExerciseById(
-            req.params.id,
-            req.user
-        );
-        return res.sendStatus(204);
-    } catch (err) {
-        if (err.message === 'NOT_FOUND')
-            return res.status(404).json({ message: 'Not found' });
-        if (err.message === 'FORBIDDEN')
-            return res.status(403).json({ message: 'Forbidden' });
-
-        res.status(400).json({ message: err.message });
-    }
-};
-
-export const getExerciseBySearch = async (req, res) => {
-    try {
-        
-    } catch (error) {
-        console.log("Lỗi trong quá trình getExerciseBySearch: ", err)
-        return res.status(500).json({ message: "Lỗi hệ thống" });
-    }
-}
+export const deleteExercise = asyncHandler(async (req, res) => {
+  await deleteExerciseById(req.params.id, req.user);
+  return res.sendStatus(204);
+});

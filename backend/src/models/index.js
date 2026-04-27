@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import configAll from '../config/config.js';
 import Sequelize from 'sequelize';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -10,7 +11,7 @@ const require = createRequire(import.meta.url);
 
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require(path.join(__dirname, '../config/config.json'))[env];
+const config = configAll[env];
 const db = {};
 
 let sequelize;

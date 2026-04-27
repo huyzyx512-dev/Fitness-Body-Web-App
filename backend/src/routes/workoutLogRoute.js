@@ -1,5 +1,5 @@
-import express from "express"
-import { createWorkoutLog, getWorkoutLog } from "../controllers/workout_logController.js";
+import express from "express";
+import { createWorkoutLog, getWorkoutLog } from "../controllers/workoutLogController.js";
 
 const router = express.Router();
 

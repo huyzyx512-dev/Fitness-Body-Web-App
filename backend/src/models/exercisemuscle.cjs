@@ -25,13 +25,13 @@ module.exports = (sequelize, DataTypes) => {
     is_primary: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
-      comment: 'Nhóm cơ chính hay phụ'
+      comment: 'Primary or secondary muscle group'
     }
   }, {
     sequelize,
     modelName: 'ExerciseMuscle',
     tableName: 'exercise_muscle',
-    timestamps: false
+    freezeTableName: true
   });
   return ExerciseMuscle;
 };
