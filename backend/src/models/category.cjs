@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Category',
     tableName: 'category',
-    timestamps: false
+    freezeTableName: true
   });
   return Category;
 };

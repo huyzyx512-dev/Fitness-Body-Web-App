@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'MuscleGroup',
     tableName: 'muscle_group',
-    timestamps: false
+    freezeTableName: true
   });
   return MuscleGroup;
 };

@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     scheduled_at: DataTypes.DATE,
     status: {
       type: DataTypes.STRING,
-      defaultValue: 'planned'
+      defaultValue: 'pending'
     },
     user_id: DataTypes.INTEGER,
     started_at: {
@@ -43,7 +43,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Workout',
-    tableName: 'Workout',
+    tableName: 'workout',
+    freezeTableName: true
   });
   return Workout;
 };

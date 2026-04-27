@@ -22,7 +22,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'RefreshToken',
-    tableName: 'RefreshToken',
+    tableName: 'refreshtoken',
+    freezeTableName: true
   });
   return RefreshToken;
 };

@@ -1,13 +1,9 @@
 import db from "../models/index.js";
 
 class UserService {
-    static async patchUser(userId) {
-        const affectedRows = await db.User.increment(
-            { tokenVersion: 1},
-            { where: { id: userId } }
-        );
-        return affectedRows;
-    }
+  static async incrementTokenVersion(userId) {
+    await db.User.increment({ tokenVersion: 1 }, { where: { id: userId } });
+  }
 }
 
-export default UserService
+export default UserService;
